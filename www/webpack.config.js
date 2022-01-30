@@ -29,7 +29,8 @@ module.exports = {
     mode: "development",
     plugins: [
         new WasmPackPlugin({
-            outDir: path.resolve(__dirname, "..", "pkg"),
+            outName: "chess",
+            outDir: path.resolve(__dirname, "wasm-binding"),
             crateDirectory: path.resolve(__dirname, "..")
         }),
         new CopyWebpackPlugin(['index.html'])

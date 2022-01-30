@@ -5,7 +5,7 @@
     "start": "webpack serve"
   },
   "dependencies": {
-    "wasm-chess": "file:../pkg"
+    "wasm-chess": "file:wasm-binding"
   },
   "devDependencies": {
     "@wasm-tool/wasm-pack-plugin": "^1.6.0",
