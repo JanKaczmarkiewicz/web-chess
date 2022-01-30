@@ -1,6 +1,6 @@
-mod utils;
-
 use wasm_bindgen::prelude::*;
+
+mod utils;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -14,6 +14,59 @@ extern {
 }
 
 #[wasm_bindgen]
-pub fn greet() {
-    alert("Hello, chess!");
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Chessman {
+    Pawn = 1,
+    Queen = 2,
+    King = 3,
+    Bishop = 4,
+    Knight = 5,
+    Rook = 6,
 }
+
+#[wasm_bindgen]
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Color {
+    Black = 1,
+    White = 2,
+}
+
+pub const BOARD_SIZE: usize = 8;
+
+#[wasm_bindgen]
+pub struct Chess {
+    board: [Option<(Chessman, Color)>; BOARD_SIZE * BOARD_SIZE],
+}
+
+#[wasm_bindgen]
+impl Chess {
+    fn get_index(&self, row: usize, column: usize) -> usize {
+        BOARD_SIZE * row + column
+    }
+
+    pub fn new() -> Self {
+        Self {
+            board: [
+                Some((Chessman::Rook, Color::White)), Some((Chessman::Knight, Color::White)), Some((Chessman::Bishop, Color::White)), Some((Chessman::King, Color::White)), Some((Chessman::Queen, Color::White)), Some((Chessman::Bishop, Color::White)), Some((Chessman::Knight, Color::White)), Some((Chessman::Rook, Color::White)),
+                Some((Chessman::Pawn, Color::White)), Some((Chessman::Pawn, Color::White)), Some((Chessman::Pawn, Color::White)), Some((Chessman::Pawn, Color::White)), Some((Chessman::Pawn, Color::White)), Some((Chessman::Pawn, Color::White)), Some((Chessman::Pawn, Color::White)), Some((Chessman::Pawn, Color::White)),
+                None, None, None, None, None, None, None, None,
+                None, None, None, None, None, None, None, None,
+                None, None, None, None, None, None, None, None,
+                None, None, None, None, None, None, None, None,
+                Some((Chessman::Pawn, Color::Black)), Some((Chessman::Pawn, Color::Black)), Some((Chessman::Pawn, Color::Black)), Some((Chessman::Pawn, Color::Black)), Some((Chessman::Pawn, Color::Black)), Some((Chessman::Pawn, Color::Black)), Some((Chessman::Pawn, Color::Black)), Some((Chessman::Pawn, Color::Black)),
+                Some((Chessman::Rook, Color::Black)), Some((Chessman::Knight, Color::Black)), Some((Chessman::Bishop, Color::Black)), Some((Chessman::King, Color::Black)), Some((Chessman::Queen, Color::Black)), Some((Chessman::Bishop, Color::Black)), Some((Chessman::Knight, Color::Black)), Some((Chessman::Rook, Color::Black)),
+            ],
+        }
+    }
+
+    pub fn board_state(&self) -> *const Option<(Chessman, Color)> {
+        self.board.as_ptr()
+    }
+
+    pub fn click(x: u8, y: u8) -> u8 {
+        return x + y;
+    }
+}
+
