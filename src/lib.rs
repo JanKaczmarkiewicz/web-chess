@@ -37,17 +37,21 @@ pub const BOARD_SIZE: usize = 8;
 
 #[wasm_bindgen]
 pub struct Chess {
+    current_player: Color,
+    selected_chessman: Option<usize>,
     board: [Option<(Chessman, Color)>; BOARD_SIZE * BOARD_SIZE],
 }
 
 #[wasm_bindgen]
 impl Chess {
-    fn get_index(&self, row: usize, column: usize) -> usize {
+    fn get_index(row: usize, column: usize) -> usize {
         BOARD_SIZE * row + column
     }
 
     pub fn new() -> Self {
         Self {
+            current_player: Color::White,
+            selected_chessman: None,
             board: [
                 Some((Chessman::Rook, Color::White)), Some((Chessman::Knight, Color::White)), Some((Chessman::Bishop, Color::White)), Some((Chessman::King, Color::White)), Some((Chessman::Queen, Color::White)), Some((Chessman::Bishop, Color::White)), Some((Chessman::Knight, Color::White)), Some((Chessman::Rook, Color::White)),
                 Some((Chessman::Pawn, Color::White)), Some((Chessman::Pawn, Color::White)), Some((Chessman::Pawn, Color::White)), Some((Chessman::Pawn, Color::White)), Some((Chessman::Pawn, Color::White)), Some((Chessman::Pawn, Color::White)), Some((Chessman::Pawn, Color::White)), Some((Chessman::Pawn, Color::White)),
@@ -65,8 +69,22 @@ impl Chess {
         self.board.as_ptr()
     }
 
-    pub fn click(x: u8, y: u8) -> u8 {
-        return x + y;
+    pub fn click(self, x: usize, y: usize) {
+        let clicked_index = Self::get_index(x, y);
+
+        match self.selected_chessman {
+            None => {
+                if self.board[clicked_index].is_none() {
+                    return;
+                }
+
+                // self.selected_chessman = Some(clicked_index);
+            }
+            Some(selected_chessman) => {
+                // self.board[clicked_index] = self.board[selected_chessman];
+                // self.board[selected_chessman] = None;
+            }
+        }
     }
 }
 

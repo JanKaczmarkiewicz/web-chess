@@ -1,6 +1,5 @@
 {
   "name": "chess",
-  "main": "index.js",
   "scripts": {
     "build": "webpack",
     "start": "webpack serve"
@@ -9,7 +8,10 @@
     "wasm-chess": "file:../pkg"
   },
   "devDependencies": {
+    "@wasm-tool/wasm-pack-plugin": "^1.6.0",
     "copy-webpack-plugin": "^5.1.2",
+    "ts-loader": "^9.2.6",
+    "typescript": "^4.5.5",
     "webpack": "^5.67.0",
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^3.11.3"

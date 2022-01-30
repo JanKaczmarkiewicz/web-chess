@@ -1,23 +1,22 @@
 import {Chess, Chessman, Color} from "wasm-chess";
-import { memory } from "wasm-chess/chess_bg.wasm";
+import {memory} from "wasm-chess/chess_bg.wasm";
 
 const NUMBER_OF_TILES = 8;
 const TILE_SIZE = 100;
 const BOARD_SIZE = NUMBER_OF_TILES * TILE_SIZE;
 
-const loadImage = (src) => {
+const getChessmanAsset = async (name: string) => {
     const image = new Image();
-    image.src = src;
+    image.src = `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${name}.png`;
 
-    return new Promise((resolve) => {
-        image.onload = () => resolve(image)
-    })
+    await new Promise((resolve) => {
+        image.onload = resolve;
+    });
+
+    return image;
 }
 
 const loadAssets = async () => {
-
-    const getChessmanAsset = (name) =>
-        loadImage(`https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${name}.png`)
 
     const [
         blackBishop,
@@ -68,51 +67,54 @@ const loadAssets = async () => {
 }
 
 (async () => {
-    const canvas = document.querySelector("#board");
+    const canvas = document.querySelector<HTMLCanvasElement>("#board");
     const ctx = canvas.getContext("2d")
+
     canvas.width = BOARD_SIZE;
     canvas.height = BOARD_SIZE;
 
     const chess = Chess.new();
     const boardRaw = new Uint8Array(memory.buffer, chess.board_state(), NUMBER_OF_TILES * NUMBER_OF_TILES * 2);
-
     const assets = await loadAssets()
 
-    ctx.beginPath();
+    const drawBoard = () => {
+        ctx.clearRect(0, 0, BOARD_SIZE, BOARD_SIZE);
 
-    const getIndex = (row, column) => 2 * NUMBER_OF_TILES * row + column;
+        for (let row = 0; row < NUMBER_OF_TILES; row++) {
+            for (let col = 0; col < NUMBER_OF_TILES; col++) {
 
-    for (let row = 0; row < NUMBER_OF_TILES; row++) {
-        for (let col = 0; col < NUMBER_OF_TILES; col++) {
+                ctx.fillStyle = (row + col) % 2 === 0 ? "#759656" : "#EDEED2";
 
-            ctx.fillStyle = (row + col) % 2 === 0 ? "#759656" : "#EDEED2";
+                ctx.fillRect(
+                    col * TILE_SIZE,
+                    row * TILE_SIZE,
+                    TILE_SIZE,
+                    TILE_SIZE
+                );
 
-            ctx.fillRect(
-                col * TILE_SIZE,
-                row * TILE_SIZE,
-                TILE_SIZE,
-                TILE_SIZE
-            );
+                const index = 2 * NUMBER_OF_TILES * row + col * 2;
 
-            const index = getIndex(row, col * 2);
+                const chessman = boardRaw[index];
+                const color = boardRaw[index + 1];
 
-            const chessman = boardRaw[index];
-            const color = boardRaw[index + 1];
+                const asset = assets[color]?.[chessman]
 
-            const asset = assets[color]?.[chessman]
+                if (!asset) continue;
 
-            if (!asset) continue;
-
-            ctx.drawImage(asset, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+                ctx.drawImage(asset, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+            }
         }
+
     }
 
-    ctx.stroke();
-
+    drawBoard();
     canvas.addEventListener("click", (e) => {
-        const clickedX = Math.floor(e.offsetX / (e.target.clientWidth / 8));
-        const clickedY = Math.floor(e.offsetY / (e.target.clientHeight / 8));
-
+        // @ts-ignore
+        const clickedX = Math.floor(e.offsetX / (e.target.clientWidth / NUMBER_OF_TILES));
+        // @ts-ignore
+        const clickedY = Math.floor(e.offsetY / (e.target.clientHeight / NUMBER_OF_TILES));
+        chess.click(clickedX, clickedY);
+        drawBoard();
     });
 })()
 
