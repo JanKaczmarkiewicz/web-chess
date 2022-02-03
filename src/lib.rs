@@ -2,6 +2,15 @@ use wasm_bindgen::prelude::*;
 
 mod utils;
 
+extern crate web_sys;
+
+// A macro to provide `println!(..)`-style syntax for `console.log` logging.
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )* ).into());
+    }
+}
+
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
 #[cfg(feature = "wee_alloc")]
@@ -69,20 +78,27 @@ impl Chess {
         self.board.as_ptr()
     }
 
-    pub fn click(self, x: usize, y: usize) {
-        let clicked_index = Self::get_index(x, y);
+    pub fn get_selected_tile(&self) -> Option<usize> {
+        self.selected_chessman
+    }
 
+    pub fn click(&mut self, x: usize, y: usize) {
+        let clicked_index = Self::get_index(y, x);
         match self.selected_chessman {
             None => {
+                log!("Clicked onx {}", self.board[clicked_index].is_none());
+
                 if self.board[clicked_index].is_none() {
                     return;
                 }
 
-                // self.selected_chessman = Some(clicked_index);
+                self.selected_chessman = Some(clicked_index);
             }
             Some(selected_chessman) => {
-                // self.board[clicked_index] = self.board[selected_chessman];
-                // self.board[selected_chessman] = None;
+                log!("Clicked on {}", clicked_index);
+                self.board[clicked_index] = self.board[selected_chessman];
+                self.board[selected_chessman] = None;
+                self.selected_chessman = None;
             }
         }
     }

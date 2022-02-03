@@ -66,6 +66,12 @@ const loadAssets = async () => {
     }
 }
 
+const colors = {
+    black: "#759656",
+    white: "#EDEED2",
+    selected: "#BACB41"
+};
+
 (async () => {
     const canvas = document.querySelector<HTMLCanvasElement>("#board");
     const ctx = canvas.getContext("2d")
@@ -83,7 +89,14 @@ const loadAssets = async () => {
         for (let row = 0; row < NUMBER_OF_TILES; row++) {
             for (let col = 0; col < NUMBER_OF_TILES; col++) {
 
-                ctx.fillStyle = (row + col) % 2 === 0 ? "#759656" : "#EDEED2";
+                const index = NUMBER_OF_TILES * row + col
+
+                let tileColor = (row + col) % 2 === 0 ? colors.black : colors.white
+                if (chess.get_selected_tile() === index) {
+                    tileColor = colors.selected
+                }
+
+                ctx.fillStyle = tileColor
 
                 ctx.fillRect(
                     col * TILE_SIZE,
@@ -92,10 +105,10 @@ const loadAssets = async () => {
                     TILE_SIZE
                 );
 
-                const index = 2 * NUMBER_OF_TILES * row + col * 2;
+                const memoryOffset = 2 * (NUMBER_OF_TILES * row + col);
 
-                const chessman = boardRaw[index];
-                const color = boardRaw[index + 1];
+                const chessman = boardRaw[memoryOffset];
+                const color = boardRaw[memoryOffset + 1];
 
                 const asset = assets[color]?.[chessman]
 
@@ -108,11 +121,13 @@ const loadAssets = async () => {
     }
 
     drawBoard();
+        
     canvas.addEventListener("click", (e) => {
         // @ts-ignore
         const clickedX = Math.floor(e.offsetX / (e.target.clientWidth / NUMBER_OF_TILES));
         // @ts-ignore
         const clickedY = Math.floor(e.offsetY / (e.target.clientHeight / NUMBER_OF_TILES));
+        console.log(clickedX, clickedY);
         chess.click(clickedX, clickedY);
         drawBoard();
     });
